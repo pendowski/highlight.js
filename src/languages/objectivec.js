@@ -13,7 +13,7 @@ function(hljs) {
       'signed typename try this switch continue wchar_t inline readonly assign property ' +
       'self synchronized end synthesize id optional required ' +
       'nonatomic super unichar finally dynamic IBOutlet IBAction selector strong ' +
-      'weak readonly',
+      'weak readonly __weak __strong __bridge',
     literal:
     	'false true FALSE TRUE nil YES NO NULL',
     built_in:
@@ -29,8 +29,13 @@ function(hljs) {
       'UILocalNotification NSBundle NSFileManager NSTimeInterval NSDate NSCalendar ' +
       'NSUserDefaults UIWindow NSRange NSArray NSError NSURLRequest NSURLConnection ' +
       'UIInterfaceOrientation MPMoviePlayerController dispatch_once_t ' +
-      'dispatch_queue_t dispatch_sync dispatch_async dispatch_once'
+      'dispatch_queue_t dispatch_sync dispatch_async dispatch_once' +
+	  'init dealloc release autorelease retain'
   };
+  var KEYWORDEX = {
+		  className: 'keyword',
+		  begin: '(NS|CG|CA|UI|AV|AB|CF|CD|CI|CL|CB|CT|GC|GK|SK|QT|MK|GL)[a-zA-Z0-9_]+'
+	  };
   return {
     keywords: OBJC_KEYWORDS,
     illegal: '</',
@@ -73,7 +78,7 @@ function(hljs) {
         beginWithKeyword: true,
         end: '({|$)',
         keywords: 'interface class protocol implementation',
-        contains: [{
+        contains: [KEYWORDEX, {
           className: 'id',
           begin: hljs.UNDERSCORE_IDENT_RE
         }
@@ -83,7 +88,21 @@ function(hljs) {
         className: 'variable',
         begin: '\\.'+hljs.UNDERSCORE_IDENT_RE,
         relevance: 0
-      }
+      },
+	  {
+		  className: 'function',
+		  begin: '([a-zA-Z0-9_]+)\\\(',
+		  end: '\\\)[; {]*',
+		  contains: [KEYWORDEX, hljs.QUOTE_STRING_MODE, {
+			  className: 'variable',
+			  begin: '[a-zA-Z0-9_]+'
+		  	}, {
+			  className: 'id',
+			  begin: hljs.UNDERSCORE_IDENT_RE
+			}
+		  ]
+	  },
+	  KEYWORDEX
     ]
   };
 }
